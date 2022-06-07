@@ -1,15 +1,57 @@
-import numpy as np
+from jinja2 import pass_context
 import pandas as pd
-import matplotlib.pyplot as plt
-import geopandas
-import zipfile
-import os
-import re
 import json
 import plotly.express as px
 import plotly.graph_objects as go
-from collections import Counter
-from bs4 import BeautifulSoup
+import dash
+from dash import dcc, html, Input, Output
+from dash.dependencies import Input, Output
+
+
+app = dash.Dash()
+
+app.layout = html.Div(children=[
+    html.Header(children=[
+        html.Div(children=[
+            html.Div(children=[
+                html.H1(children=[
+                    'Kutas Kozła'
+                ])
+            ]),
+
+        ]),  # TODO: Dodać switch'a na przełączanie pomiędzy erami, latami
+        html.Nav(children=dcc.RadioItems(
+            ['Porównanie Zarobków', 'Popularność Języków',
+             'Oferty Zdalne', 'Ilość Ofert w Polsce',
+             'Zarobki w Polsce'],
+            'Porównanie Zarobków',
+            id='graph_select'
+        )
+        )
+    ]),
+    html.Main(children=[
+        dcc.Graph(id='graph'),
+    ]),
+    html.Section()
+])
+
+
+@ app.callback(
+    Output(component_id="graph", component_property="figure"),
+    Input('graph_select', 'value')
+)
+def display_graph(selected_graph):
+    match selected_graph:
+        case 'Porównanie Zarobków':
+            return compare_income()
+        case 'Popularność Języków':
+            return compare_languages_pop()
+        case 'Oferty Zdalne':
+            return compare_offers_remote()
+        case 'Ilość Ofert w Polsce':
+            return offers_amt_poland()
+        case 'Zarobki w Polsce':
+            return offers_salary_poland()
 
 
 def compare_income() -> go.Figure:
@@ -23,8 +65,8 @@ def compare_income() -> go.Figure:
         histfunc="sum",
         # name used in legend and hover labels
         name='Średnia krajowa w danym województwie',
-        marker_color='#EB89B5',
-        opacity=0.75
+        marker_color='#fde65a',
+        opacity=0.90
     ))
     fig.add_trace(go.Histogram(
         x=porownanie_srednich_woj_inf['wojewodztwo'],
@@ -32,15 +74,17 @@ def compare_income() -> go.Figure:
         histfunc="sum",
         # name used in legend and hover labels
         name='Średnie zarobki informatyków w danym województwie',
-        marker_color='#330C73',
-        opacity=0.75
+        marker_color='#551ebc',
+        opacity=0.90
     ))
 
     fig.update_layout(
         title_text='Porównanie średnich zarobków w danych województwach',  # title of plot
         yaxis_title_text='Zarobki [zł]',  # yaxis label
         bargap=0.2,  # gap between bars of adjacent location coordinates
-        bargroupgap=0.1  # gap between bars of the same location coordinates
+        bargroupgap=0.1,  # gap between bars of the same location coordinates
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+        font_color='#cab656'
     )
 
     return fig
@@ -49,7 +93,12 @@ def compare_income() -> go.Figure:
 def compare_languages_pop() -> go.Figure:
     df_jezyki = pd.read_csv("../data/zbior_jezyki_zdalnie.csv")
     df_jezyki["ilosc_ofert"] = df_jezyki.zdalnieT + df_jezyki.zdalnieN
-    return px.pie(df_jezyki, values='ilosc_ofert', names="jezyk")
+    fig = px.pie(df_jezyki, values='ilosc_ofert',
+                 names="dziedzina", color_discrete_sequence=px.colors.sequential.thermal)
+    fig.update_layout(paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656')
+    fig.update_traces(textposition='inside')
+    return fig
 
 
 def compare_offers_remote() -> go.Figure:
@@ -57,7 +106,7 @@ def compare_offers_remote() -> go.Figure:
     df_jezyki["ilosc_ofert"] = df_jezyki.zdalnieT + df_jezyki.zdalnieN
     labels = ["Zdalnie", "Stacjonarnie"]
     values = [df_jezyki.sum()["zdalnieT"], df_jezyki.sum()["zdalnieN"]]
-    return go.Figure(data=[go.Pie(labels=labels, values=values)])
+    return go.Figure(data=[go.Pie(labels=labels, values=values, marker_colors=['#fde65a', '#551ebc'])], layout=go.Layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656'))
 
 
 def offers_amt_poland() -> go.Figure:
@@ -68,9 +117,10 @@ def offers_amt_poland() -> go.Figure:
         "../data/wojewodztwa_ilosc_ofert.csv", index_col=0)
     fig = px.choropleth_mapbox(df_woj_amt, geojson=pl_woj_json,
                                locations=df_woj_amt.index, featureidkey="properties.nazwa",
-                               mapbox_style="open-street-map", color='ilosc',
+                               mapbox_style="carto-darkmatter", color='ilosc',
                                center={"lat": 52.2248, "lon": 19.3120}, zoom=4.85)
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656')
     return fig
 
 
@@ -83,11 +133,12 @@ def offers_salary_poland() -> go.Figure:
 
     fig = px.choropleth_mapbox(df_woj_mean, geojson=pl_woj_json,
                                locations=df_woj_mean.index, featureidkey="properties.nazwa",
-                               mapbox_style="open-street-map", color='srednie_zarobki',
+                               mapbox_style="carto-darkmatter", color='srednie_zarobki',
                                center={"lat": 52.2248, "lon": 19.3120}, zoom=4.85)
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656')
     return fig
 
 
 if __name__ == "__main__":
-    pass
+    app.run_server(debug=True)
