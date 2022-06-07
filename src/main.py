@@ -93,7 +93,7 @@ def compare_languages_pop() -> go.Figure:
     fig = px.pie(df_jezyki, values='ilosc_ofert',
                  names="dziedzina", color_discrete_sequence=px.colors.sequential.thermal)
     fig.update_layout(paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656')
+                      plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656', title_text="Popularność Języków", title_font_color='#cab656')
     fig.update_traces(textposition='inside')
     return fig
 
@@ -104,7 +104,7 @@ def compare_offers_remote() -> go.Figure:
     labels = ["Praca Zdalna", "Praca Stacjonarna"]
     values = [df_jezyki.sum()["zdalnieT"], df_jezyki.sum()["zdalnieN"]]
     fig = go.Figure(data=[go.Pie(labels=labels, values=values, marker_colors=['#fde65a', '#551ebc'])], layout=go.Layout(
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656'))
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656', title_text="Ilość Ofert Pracy Zdalnej a Stacjonarnej", title_font_color='#cab656'))
     fig.update_traces(textinfo='percent+value')
     return fig
 
@@ -119,8 +119,8 @@ def offers_amt_poland() -> go.Figure:
                                locations=df_woj_amt.index, featureidkey="properties.nazwa",
                                mapbox_style="carto-darkmatter", color='ilosc',
                                center={"lat": 52.2248, "lon": 19.3120}, zoom=4.85, labels={'ilosc': "Ilość Ofert"})
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
-                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656')
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656', title_text="Ilość Ofert w Polsce", title_font_color='#cab656')
     return fig
 
 
@@ -135,8 +135,8 @@ def offers_salary_poland() -> go.Figure:
                                locations=df_woj_mean.index, featureidkey="properties.nazwa",
                                mapbox_style="carto-darkmatter", color='srednie_zarobki',
                                center={"lat": 52.2248, "lon": 19.3120}, zoom=4.85, labels={'srednie_zarobki': "Średnie Zarobki Brutto"})
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
-                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656')
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#cab656', title_text="Zarobki w Polsce", title_font_color='#cab656')
     return fig
 
 
