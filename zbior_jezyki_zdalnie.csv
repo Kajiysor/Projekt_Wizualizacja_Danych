@@ -1,4 +1,4 @@
-jezyk,zdalnieT,zdalnieN
+dziedzina,zdalnieT,zdalnieN
 python,455,186
 c,407,180
 html,196,117
@@ -7,4 +7,11 @@ php,418,230
 net,482,195
 java,986,742
 ruby,92,13
-other,3317,1248
+mobile,265,58
+devops,300,110
+tester,309,179
+support,107,216
+admin,139,188
+project_manager,174,153
+system_architect,131,71
+other,1892,273
