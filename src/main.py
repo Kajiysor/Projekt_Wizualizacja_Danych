@@ -62,7 +62,7 @@ def compare_income() -> go.Figure:
         x=porownanie_srednich_woj_inf['wojewodztwo'],
         y=porownanie_srednich_woj_inf['srednie_zarobki_wojewodztwo'],
         histfunc="sum",
-        name='Średnia krajowa w danym województwie',
+        name='Średnie zarobki w danym województwie',
         marker_color='#fde65a',
         opacity=0.90
     ))
